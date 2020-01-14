@@ -53,6 +53,11 @@ class ProductPage extends React.Component {
         <div className="mt-5">
         <nav aria-label="breadcrumb">
             <ol className="breadcrumb">
+            <li className="breadcrumb-item" aria-current="page" >
+              <Link to={'/products'}>
+                Home
+              </Link>
+            </li>
             {
               this.state.breadcrum_links.map(data=>
               <li className="breadcrumb-item" aria-current="page" key={data.link} >
