@@ -7,7 +7,7 @@
 ###### #Clone the repository
 
 ###### #Installing Server Dependencies
- Locate into orignal directory<br>
+ Locate into original directory<br>
  Run "npm install"<br>
  
 ###### #Installing Client Dependencies
