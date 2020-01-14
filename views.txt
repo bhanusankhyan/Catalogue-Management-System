@@ -1,0 +1,7 @@
+create view queryv1 as select t1.brand_name, t2.product_id, t2.product_name, t2.description from brands as t1, products as t2 where t1.brand_id = t2.brand_id;
+
+
+create view queryv2 as select t1.brand_name, t1.product_id, t1.product_name, t1.description , t2.category_id from queryv1 as t1, categoryProduct as t2 where t1.product_id = t2.product_id;
+
+
+create view queryv3 as select t1.brand_name, t1.product_id, t1.product_name, t1.description , t2.category_name, t2.parent_name from queryv2 as t1, categories as t2 where t1.category_id = t2.category_id;

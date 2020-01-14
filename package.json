@@ -1,0 +1,23 @@
+{
+  "name": "catalogue-management-system",
+  "version": "1.0.0",
+  "description": "cms",
+  "main": "server.js",
+  "scripts": {
+    "client-install": "cd cms-client && npm install",
+    "start": "node server.js",
+    "server": "nodemon server.js",
+    "client": "cd cms-client && npm start",
+    "dev": "concurrently \"npm run server \" \"npm run client \""
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "concurrently": "^5.0.2",
+    "express": "^4.17.1",
+    "pg": "^7.17.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.2"
+  }
+}
