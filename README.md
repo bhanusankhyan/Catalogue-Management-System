@@ -6,20 +6,18 @@
 
 ###### #Clone the repository
 
-###### #Adding submodule data
- Locate into cms-client directory<br>
- Run command "git submodule init" and "git submodule update"<br>
-
 ###### #Installing Server Dependencies
  Locate into orignal directory<br>
  Run "npm install"<br>
  
 ###### #Installing Client Dependencies
  Run "npm run client-install"
+ 
 ###### #Before running the server we need to setup the database
   Create Database with name "catalogue" and create User with Username : "cms" Password : "cms"<br>
   Run "node database_setup.js" in order to setup Database<br>
   Run "node database_populate.js" to populate database with some dummy entries
+  
 ##### Creating Database Views
   
   1. CREATE VIEW queryv1 AS select t1.brand_name, t2.product_id, t2.product_name,<br>
