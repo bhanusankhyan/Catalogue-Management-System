@@ -1,11 +1,11 @@
 import React, {Component} from 'react';
 import {Link} from 'react-router-dom';
 import './products.css';
-import FilterBrands from './filterBrands';
-import FilterCategories from './filterCategories';
+import Filter from './filter';
 import CreateProduct from './createProduct';
 import CreateBrand from './createBrand';
-import CreateCategory from './createCategory'
+import CreateCategory from './createCategory';
+import ProductCard from './productCard';
 
 
 class Products extends Component {
@@ -38,6 +38,7 @@ class Products extends Component {
     fetch('api/select-category')
       .then(res => res.json())
       .then(data => {
+        console.log(data.status)
         let categories = []
         for (let item in data){
           categories.push({label:data[item].category_name, value:data[item].category_name})
@@ -137,32 +138,14 @@ class Products extends Component {
                   <div className="card">
                       <h6 className="text-center">Filter By</h6>
                   </div>
-                  <FilterBrands brands = {this.state.brandFilter} selectedBrand = {this.state.selectedBrand} onBrandsChange = {this.onBrandsChange}/>
-                  <FilterCategories categories = {this.state.categoryFilter} selectedCategory = {this.state.selectedCategory} onCategoryChange = {this.onCategoryChange}/>
+                  <Filter value = {this.state.brandFilter} selectedItem = {this.state.selectedBrand} onChange = {this.onBrandsChange} placeholder = {"Select Brands"}/>
+                  <Filter value = {this.state.categoryFilter} selectedItem = {this.state.selectedCategory} onChange = {this.onCategoryChange} placeholder = {"Select Categories"}/>
                   <button className="btn btn-outline-dark mt-2" onClick={this.handleFilters}>
                       Reset Filters
                   </button>
               </div>
               <div className="col-lg-9">
-                  <div className="row">
-                      {
-                          this.state.displayProducts.map(product =>
-                              <div className = "col-lg-6 mb-3 text-center" key={product.product_id}>
-                                <Link className='link' to={`/product/${product.product_id}`}>
-                                  <div className="card">
-                                    <div className="card-header">
-                                        <h5>{product.product_name}</h5>
-                                    </div>
-                                    Brand : {product.brand_name}
-                                    <br />
-                                    Category : {product.category_name}
-                                    <br />
-                                  </div>
-                                </Link>
-                              </div>
-                            )
-                      }
-                  </div>
+                  <ProductCard products={this.state.displayProducts} />
                 </div>
           </div>
       </div>

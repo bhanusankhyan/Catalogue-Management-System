@@ -1,9 +1,9 @@
 import React from 'react';
 import {Link, Redirect} from 'react-router-dom';
 import './products.css';
-import FilterBrands from './filterBrands';
-import FilterCategories from './filterCategories';
+import Filter from './filter';
 import PageNotFound from '../../404'
+import ProductCard from './productCard'
 
 class ProductsHier extends React.Component {
   constructor() {
@@ -172,34 +172,15 @@ dataChange() {
                 <div className="card">
                     <h6 className="text-center">Filter By</h6>
                 </div>
-                <FilterBrands brands = {this.state.brandFilter} selectedBrand = {this.state.selectedBrand} onBrandsChange = {this.onBrandsChange}/>
-                <FilterCategories categories = {this.state.categoryFilter} selectedCategory = {this.state.selectedCategory} onCategoryChange = {this.onCategoryChange}/>
+                <Filter value = {this.state.brandFilter} selectedItem = {this.state.selectedBrand} onChange = {this.onBrandsChange} placeholder = {"Select Brands"}/>
+                <Filter value = {this.state.categoryFilter} selectedItem = {this.state.selectedCategory} onChange = {this.onCategoryChange} placeholder = {"Select Categories"}/>
                 <button className="btn btn-outline-dark mt-2" onClick={this.handleFilters.bind(this)}>
                     Reset Filters
                 </button>
             </div>
 
                   <div className="col-lg-9">
-                  <div className="row">
-                      {
-                          this.state.displayProducts.map(product =>
-                              <div className = "col-lg-4 mb-3 text-center" key={product.product_id}>
-                                <Link className="link" to={`/product/${product.product_id}`} >
-                                  <div className="card">
-                                    <div className="card-header">
-                                        <h5>{product.product_name}</h5>
-                                    </div>
-                                    Brand : {product.brand_name}
-                                    <br />
-                                    Category : {product.category_name}
-                                    <br />
-                                    Parent Category : {product.parent_name}
-                                  </div>
-                                  </Link>
-                              </div>
-                            )
-                      }
-                    </div>
+                  <ProductCard products = {this.state.displayProducts} />
                 </div>
                 </div>
             </div>
