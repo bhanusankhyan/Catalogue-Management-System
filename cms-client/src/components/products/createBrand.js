@@ -18,6 +18,7 @@ class CreateBrand extends React.Component {
 
   createBrand(e) {
     e.preventDefault();
+    if(this.state.brandName.trim() !== ""){
     const brandData = [{brand_name: this.state.brandName}]
     fetch('/api/createbrand',{
       method : 'post',
@@ -38,6 +39,10 @@ class CreateBrand extends React.Component {
         alert(data[0].result+" Please Try Again")
       }
     })
+    }
+    else{
+      alert("Please Enter a Brand Name")
+    }
   }
 
   render(){

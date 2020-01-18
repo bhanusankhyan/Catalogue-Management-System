@@ -1,5 +1,6 @@
 import React from 'react';
 import {Link, Redirect} from 'react-router-dom';
+import PageNotFound from '../../404'
 
 class ProductPage extends React.Component {
   constructor() {
@@ -97,9 +98,7 @@ class ProductPage extends React.Component {
             </div>
         </div>
         </div> :
-        <h1>
-            Page Not Found
-        </h1>
+        <PageNotFound />
       }
       </div>
     )

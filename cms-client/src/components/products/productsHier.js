@@ -3,6 +3,7 @@ import {Link, Redirect} from 'react-router-dom';
 import './products.css';
 import FilterBrands from './filterBrands';
 import FilterCategories from './filterCategories';
+import PageNotFound from '../../404'
 
 class ProductsHier extends React.Component {
   constructor() {
@@ -20,16 +21,19 @@ class ProductsHier extends React.Component {
           filter:[
             {brands:[]},
             {categories:[]}
-          ]
+          ],
+          hierCheck : true
     }
-    //this.handleFilters = this.state.handleFilters.bind(this)
   }
   componentDidMount(){
     fetch(`/api/hier/${this.props.match.params[0]}`)
     .then(res => res.json())
     .then(data => {
-      this.setState({displayProducts:data})
-      this.setState({products: data})
+      console.log(data)
+      if (data.result === true){
+      this.setState({hierCheck:true})
+      this.setState({displayProducts:data.data})
+      this.setState({products: data.data})
       let link_data = this.props.match.params[0]
       if(link_data.charAt(link_data.length-1) == '/'){
         link_data = link_data.slice(0,-1)
@@ -53,75 +57,75 @@ class ProductsHier extends React.Component {
       let categories = []
       let products = this.state.products
       for (let item in products){
-        console.log(products[item])
         brands.push({label:products[item]['brand_name'], value: products[item]['brand_name']})
         categories.push({label:products[item]['category_name'], value: products[item]['category_name']})
       }
       let filtered_brands = [...new Map(brands.map(obj => [JSON.stringify(obj), obj])).values()];
       let filtered_categories = [...new Map(categories.map(obj => [JSON.stringify(obj), obj])).values()];
       this.setState({brandFilter : filtered_brands})
-      console.log(this.state.products)
       this.setState({categoryFilter: filtered_categories})
 
     var elements = document.getElementsByClassName('css-1hb7zxy-IndicatorsContainer')
     while (elements.length > 0) elements[0].remove();
-    })
+  }
+  else{
+    this.setState({hierCheck: false})
+  }
+  })
+
 
   }
 
   onBrandsChange = selectedBrand => {
-    var filter = this.state.filter
-    filter[0].brands = selectedBrand
-    filter[1].categories = this.state.selectedCategory
-    this.setState({filter:filter})
     this.setState(
       { selectedBrand },
-      () => {
-        fetch('/api/product_listing',{
-          method : 'post',
-          headers : {
-            "Content-Type" : "application/json"
-          },
-          body : JSON.stringify(this.state.filter)
-        })
-        .then(res => res.json())
-        .then(data => this.setState({displayProducts: data}, () => {
-        if(this.state.selectedBrand == null && this.state.selectedCategory == null){
-          this.setState({displayProducts:this.state.products})
-        }
-
-        }))
-      }
+      () => this.dataChange()
     );
   }
+
   onCategoryChange = selectedCategory => {
+      this.setState({selectedCategory}, ()=> {
+        this.dataChange()
+      })
+    }
+
+dataChange() {
+  var filter = this.state.filter
+  filter[0].brands = this.state.selectedBrand
+  filter[1].categories = this.state.selectedCategory
+  if(filter[1].categories == null){
+    filter[1].categories = this.state.categoryFilter
+  }
+  else if(filter[0].brands == null){
+    filter[0].brands = this.state.brandFilter
+  }
+  else if(filter[0].brands == null && filter[1].categories == null){
+    this.setState({displayProducts:this.state.products})
+  }
+  else{
+    filter[0].brands = this.state.selectedBrand
+    filter[1].categories = this.state.selectedCategory
+  }
+  this.setState({filter}, () => {
+    fetch('/api/product_listing',{
+      method : 'post',
+      headers : {
+        "Content-Type" : "application/json"
+      },
+      body : JSON.stringify(this.state.filter)
+    })
+    .then(res => res.json())
+    .then(data => this.setState({displayProducts: data}, () => {
     if(this.state.selectedBrand == null && this.state.selectedCategory == null){
       this.setState({displayProducts:this.state.products})
     }
-    var filter = this.state.filter
-    filter[0].brands = this.state.selectedBrand
-    filter[1].categories = selectedCategory
-    this.setState({filter:filter},
-    () => {
-      fetch('/api/product_listing',{
-        method : 'post',
-        headers : {
-          "Content-Type" : "application/json"
-        },
-        body : JSON.stringify(this.state.filter)
-      })
-      .then(res => res.json())
-      .then(data => {
-        this.setState({displayProducts:data}, () => {
-        if(this.state.selectedBrand == null && this.state.selectedCategory == null){
-          this.setState({displayProducts:this.state.products})
-        }
-        })
-      })
-      })
-    this.setState(
-      {selectedCategory})
-  }
+
+    }))
+  })
+
+}
+
+
 
   handleFilters(){
     this.setState({displayProducts:this.state.products})
@@ -134,7 +138,10 @@ class ProductsHier extends React.Component {
   }
 
   render() {
+    //console.log(this.state.breadcrum_links.length)
     return(
+      <div>
+      { this.state.hierCheck === true ?
       <div className= "container">
         <div className="mt-5">
           <nav aria-label="breadcrumb">
@@ -145,12 +152,17 @@ class ProductsHier extends React.Component {
                 </Link>
               </li>
                 {
-                  this.state.breadcrum_links.map(data=>
+                  this.state.breadcrum_links.map((data,index)=>{
+                    return(
                     <li className="breadcrumb-item" aria-current="page" key={data.link}>
-                      <Link onClick = {() => this.onClick(data.link)}>
+                      { this.state.breadcrum_links.length -1 !== index ?
+                        <Link onClick = {() => this.onClick(data.link)}>
                         {data.name}
-                      </Link>
-                    </li>)
+                      </Link> :
+                       <span>{data.name} </span>
+                    }
+                    </li>
+                  )})
                   }
 
                 </ol>
@@ -191,6 +203,9 @@ class ProductsHier extends React.Component {
                 </div>
                 </div>
             </div>
+      </div> :
+      <PageNotFound />
+      }
       </div>
     )
   }
