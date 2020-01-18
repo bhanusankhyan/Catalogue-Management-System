@@ -34,8 +34,7 @@ class CreateProduct extends React.Component {
       this.setState({brandID : this.state.brands[0]['brand_id']})
     }))
     this.setState({modalShow:true})
-
-  }
+}
 
 
 
@@ -53,9 +52,10 @@ class CreateProduct extends React.Component {
   }
 
   handleSubmit = (e) => {
+    e.preventDefault();
+    if(this.state.productName.trim() !== ''){
     const product = [{product_name:this.state.productName,brand_id:this.state.brandID,
       category_id:this.state.categoryID,specs_keys:this.state.specsKeys,description:this.state.description}]
-    e.preventDefault()
     fetch('/api/create-product',{
       method : 'post',
       headers : {
@@ -68,11 +68,16 @@ class CreateProduct extends React.Component {
       if(data.result == 'success'){
         alert("Product Created Successfully")
         this.setState({modalShow : false})
+        window.location.href = "/"
       }
       else{
         alert(data.result+" Please Try Again")
       }
     })
+  }
+  else{
+    alert('Please Enter Product Name')
+  }
   }
 
   handleChange = (e) => {

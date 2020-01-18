@@ -28,8 +28,9 @@ handleParentCategory(e) {
 }
 
 createCategory(e) {
-  const categoryData = [{category_name : this.state.categoryName, parent_name : this.state.parentCategory}]
   e.preventDefault()
+  if(this.state.categoryName.trim() !== ''){
+  const categoryData = [{category_name : this.state.categoryName, parent_name : this.state.parentCategory}]
   fetch('/api/create-category', {
     method : 'post',
     headers : {
@@ -48,6 +49,10 @@ createCategory(e) {
       alert(data[0].result+" Please Try Again")
     }
   })
+}
+else{
+  alert("Please enter Category Name")
+}
 }
 
 handleCategoryName(e) {

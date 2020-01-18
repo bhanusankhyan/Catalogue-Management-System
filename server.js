@@ -47,20 +47,29 @@ app.post('/api/product_listing',async (req, res) => {
     }
   }
   if (categories !== null){
+    //console.log(categories)
     for (let item in categories){
-      const parent = await client.query(`select category_id, category_name from categories where category_name like '${categories[item]['label']}'`)
+      let parent = await client.query(`select category_id, category_name from categories where category_name like '${categories[item]['label']}'`)
+      //console.log('y')
+      //console.log(parent.rows)
       for (let value in parent.rows){
+        //console.log(parent.rows[value])
         filtered_categories.push(parent.rows[value])
+        parent = []
       }
-      const data = await filterCategories(categories[item]['label'])
+      //console.log(categories[item]['label'])
+      let data = await filterCategories(categories[item]['label'])
+      //console.log(data)
       if(data.length !== 0){
         for (let value in data){
           filtered_categories.push(data[value])
         }
       }
+      categories_filtered = []
     }
   }
-  categories_filtered = []
+
+  //console.log(filtered_categories)
   let result_categories = [...new Map(filtered_categories.map(obj => [JSON.stringify(obj), obj])).values()];
   let products = []
   for (let item in result_categories){
@@ -128,20 +137,37 @@ app.get('/api/product/:id', async(req,res) => {
 // API to fetch Data of a Parent to Child Hierarchy
 app.get('/api/hier/*', async(req,res) => {
   let param = req.params[0]
+  let data = []
   if(param.charAt(param.length-1) == '/'){
     param = param.slice(0,-1)
   }
   const child = param.split("/").slice(-1)
-
-  const data = await readHierarchy(child[0].replace(/-/g," "))
-  const parent = await client.query(`select category_id, category_name from categories where category_name like '${child[0].replace(/-/g," ")}'`)
-  hierTree.push(parent.rows[0])
-  var products = []
+  const parent_data = await client.query("select category_id, category_name from categories where category_name like $1",[child[0].replace(/-/g, " ")])
+  data.push(parent_data.rows[0])
+  let children = await readHierarchy(child[0].replace(/-/g," "))
+  for (let item in children){
+    data.push(children[item])
+  }
+  const parents  = param.split("/")
+  let products = {result:true,data:[]}
+  for (let item in parents){
+    const parent = await client.query(`select category_id, category_name from categories where category_name like '${parents[item].replace(/-/g," ")}'`)
+    if(parent.rows.length === 0){
+      products['result'] = false
+    }
+  }
+  if(products.result === true){
   for(let item in data){
+    try{
     let product = await client.query(`select * from queryv3 where category_name like '${data[item]['category_name']}'`)
     for(let value in product.rows){
-      products.push(product.rows[value])
+      products.data.push(product.rows[value])
     }
+    }
+    catch(e){
+      console.log(e)
+    }
+  }
   }
   hierTree = []
   res.send(JSON.stringify(products))
@@ -157,6 +183,7 @@ app.get('/api/brands', async(req,res) => {
 app.post('/api/create-product', async(req, res) => {
   const data = req.body[0]
   const create_product = await createProduct(data.product_name, data.brand_id, data.description)
+  console.log(create_product)
   if(create_product != 1){
     res.send(JSON.stringify({result:create_product}))
   }
@@ -279,20 +306,24 @@ async function readBreadcrum(parent_name){
 }
 
 // Function to Fetch Hierarchy Category Data
-var hierTree = []
+let hierTree = []
 async function readHierarchy(parent){
   try{
     const children = await client.query(`select category_id, category_name from categories where parent_name like '${parent}'`)
+    if (children.rows.length !== 0){
     for (let item in children.rows){
       hierTree.push(children.rows[item])
       await readHierarchy(children.rows[item].category_name)
     }
-    return hierTree
+    }
 
   }
   catch(e){
     console.log(e)
     return []
+  }
+  finally{
+    return hierTree
   }
 }
 
