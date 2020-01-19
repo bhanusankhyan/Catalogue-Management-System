@@ -19,6 +19,7 @@ class CreateProduct extends React.Component {
     this.onHideModal = this.onHideModal.bind(this)
     this.addSpecifications = this.addSpecifications.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
+    this.deleteSpecifications = this.deleteSpecifications.bind(this)
   }
 
 
@@ -46,14 +47,23 @@ class CreateProduct extends React.Component {
   }
 
   addSpecifications(){
-    this.setState((prevState) => ({
-      specsKeys: [...prevState.specsKeys, {key:"", value:"",unit:""}],
-    }));
+    const specsKeys = this.state.specsKeys
+    if(specsKeys !== undefined){
+      if(specsKeys[specsKeys.length-1].key.trim() === "" || specsKeys[specsKeys.length -1 ].value.trim() === ""){
+        alert("Please Enter Previous Key and Value")
+      }
+      else{
+        this.setState((prevState) => ({
+          specsKeys: [...prevState.specsKeys, {key:"", value:"",unit:""}],
+        }));
+      }
+    }
   }
 
   handleSubmit = (e) => {
     e.preventDefault();
     if(this.state.productName.trim() !== ''){
+
     const product = [{product_name:this.state.productName,brand_id:this.state.brandID,
       category_id:this.state.categoryID,specs_keys:this.state.specsKeys,description:this.state.description}]
     fetch('/api/create-product',{
@@ -88,6 +98,14 @@ class CreateProduct extends React.Component {
       } else {
         this.setState({ [e.target.name]: e.target.value })
       }
+    }
+
+    deleteSpecifications() {
+      let data = this.state.specsKeys
+      if(data.length>1){
+      data.pop()
+      this.setState({specsKeys:data})
+    }
     }
 
 
@@ -139,7 +157,10 @@ class CreateProduct extends React.Component {
             </div>
           </div>
           <div className="text-center mt-4">
-            <h4>Specifications <button type="button" className="btn btn-outline-dark" onClick={this.addSpecifications}> Add + </button> </h4>
+            <h4>Specifications <button type="button" className="btn btn-outline-dark" onClick={this.addSpecifications}> Add + </button> &nbsp;
+              <button type="button" className="btn btn-outline-dark" onClick={this.deleteSpecifications}> Delete - </button>
+             </h4>
+
           </div>
 
           {

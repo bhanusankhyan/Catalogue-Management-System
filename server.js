@@ -47,19 +47,13 @@ app.post('/api/product_listing',async (req, res) => {
     }
   }
   if (categories !== null){
-    //console.log(categories)
     for (let item in categories){
       let parent = await client.query(`select category_id, category_name from categories where category_name like '${categories[item]['label']}'`)
-      //console.log('y')
-      //console.log(parent.rows)
       for (let value in parent.rows){
-        //console.log(parent.rows[value])
         filtered_categories.push(parent.rows[value])
         parent = []
       }
-      //console.log(categories[item]['label'])
       let data = await filterCategories(categories[item]['label'])
-      //console.log(data)
       if(data.length !== 0){
         for (let value in data){
           filtered_categories.push(data[value])
@@ -183,7 +177,6 @@ app.get('/api/brands', async(req,res) => {
 app.post('/api/create-product', async(req, res) => {
   const data = req.body[0]
   const create_product = await createProduct(data.product_name, data.brand_id, data.description)
-  console.log(create_product)
   if(create_product != 1){
     res.send(JSON.stringify({result:create_product}))
   }
@@ -192,13 +185,16 @@ app.post('/api/create-product', async(req, res) => {
     const mappingCategory = await client.query(`insert into categoryProduct (category_id,product_id) \
     values \
     ('${data.category_id}','${productId.rows[0].product_id}')`)
-    if(data.specs_keys[0].key !== ""){
+    if(data.specs_keys.length > 0){
+      console.log(data.specs_keys.length)
       for(let item in data.specs_keys){
-        await client.query(`insert into specifications (product_id,key,value,unit) \
-        values \
-        (${productId.rows[0].product_id},'${data.specs_keys[item]['key']}','${data.specs_keys[item]['value']}','${data.specs_keys[item]['unit']}')`)
+          if(data.specs_keys[item].key.trim() !== "" && data.specs_keys[item].value.trim() !== ""){        
+              await client.query(`insert into specifications (product_id,key,value,unit) \
+              values \
+              (${productId.rows[0].product_id},'${data.specs_keys[item]['key']}','${data.specs_keys[item]['value']}','${data.specs_keys[item]['unit']}')`)
       }
     }
+  }
     res.send(JSON.stringify({result:'success'}))
 }
 })
