@@ -1,6 +1,6 @@
 # Catalogue Management System
-##### System to manage Brands and their products
-##### Technologies Used - Frontend : React.js| Backend : Nodejs, Express| Database : Postgresql
+##### System to manage Categories, Brands and their products
+##### Technologies Used - Frontend : React.js | Backend : Nodejs, Express | Database : Postgresql
 
 ##### To run the project please follow the steps:
 
