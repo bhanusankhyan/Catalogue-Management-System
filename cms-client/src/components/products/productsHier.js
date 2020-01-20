@@ -1,5 +1,4 @@
 import React from 'react';
-import {Link, Redirect} from 'react-router-dom';
 import './products.css';
 import Filter from './filter';
 import PageNotFound from '../../404'
@@ -29,13 +28,12 @@ class ProductsHier extends React.Component {
     fetch(`/api/hier/${this.props.match.params[0]}`)
     .then(res => res.json())
     .then(data => {
-      console.log(data)
       if (data.result === true){
       this.setState({hierCheck:true})
       this.setState({displayProducts:data.data})
       this.setState({products: data.data})
       let link_data = this.props.match.params[0]
-      if(link_data.charAt(link_data.length-1) == '/'){
+      if(link_data.charAt(link_data.length-1) === '/'){
         link_data = link_data.slice(0,-1)
       }
       let breadcrum = link_data.split("/")
@@ -43,7 +41,7 @@ class ProductsHier extends React.Component {
       let parent_link = "/products/"
       let links = []
       for(let i=0;i< breadcrum.length;i++){
-        if(breadcrum.length == 1){
+        if(breadcrum.length === 1){
           links.push({"name" :breadcrum[i], "link": parent_link.concat(breadcrum[i].replace(/ /g,"-"))})
         }
         else{
@@ -133,12 +131,8 @@ dataChange() {
     this.setState({selectedCategory: null})
   }
 
-  onClick = (link) => {
-  window.location.href=link
-  }
 
   render() {
-    //console.log(this.state.breadcrum_links.length)
     return(
       <div>
       { this.state.hierCheck === true ?
@@ -147,18 +141,18 @@ dataChange() {
           <nav aria-label="breadcrumb">
               <ol className="breadcrumb">
               <li className="breadcrumb-item" aria-current="page" >
-                <Link onClick = {() => this.onClick("/products")}>
+                <a href="/">
                   Home
-                </Link>
+                </a>
               </li>
                 {
                   this.state.breadcrum_links.map((data,index)=>{
                     return(
                     <li className="breadcrumb-item" aria-current="page" key={data.link}>
                       { this.state.breadcrum_links.length -1 !== index ?
-                        <Link onClick = {() => this.onClick(data.link)}>
+                        <a  href = {data.link}>
                         {data.name}
-                      </Link> :
+                      </a> :
                        <span>{data.name} </span>
                     }
                     </li>

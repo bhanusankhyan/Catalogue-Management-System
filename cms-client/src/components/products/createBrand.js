@@ -6,7 +6,7 @@ class CreateBrand extends React.Component {
     super();
     this.state = {
       modalShow : false,
-      brandName : ""
+      brandName : "",
     }
     this.handleBrandName = this.handleBrandName.bind(this);
     this.createBrand = this.createBrand.bind(this);
@@ -29,9 +29,10 @@ class CreateBrand extends React.Component {
     })
     .then(res => res.json())
     .then(data => {
-      if(data[0].result == 1){
+      if(data[0].result === 1){
         this.setState({modalShow: false}, ()=> {
           alert("Brand Successfully Added")
+          this.props.refreshList("brands");
         })
 
       }

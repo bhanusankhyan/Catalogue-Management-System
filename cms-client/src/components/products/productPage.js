@@ -1,5 +1,5 @@
 import React from 'react';
-import {Link, Redirect} from 'react-router-dom';
+import {Link} from 'react-router-dom';
 import PageNotFound from '../../404'
 
 class ProductPage extends React.Component {
@@ -21,7 +21,7 @@ class ProductPage extends React.Component {
     .then(data => {
       this.setState({productData: data[0]['product_data']})
       this.setState({specifications: data[0]['specifications']})
-      if(data[0]['product'] == true){
+      if(data[0]['product'] === true){
         this.setState({productCheck : true})
         this.setState({breadcrum : data[0]['breadcrum']})
         let breadcrum = data[0].breadcrum.slice(1).split("/")
@@ -29,7 +29,7 @@ class ProductPage extends React.Component {
         let parent_link = "/products/"
         let links = []
         for(let i=0;i< breadcrum.length;i++){
-          if(breadcrum.length == 1){
+          if(breadcrum.length === 1){
             links.push({"name" :breadcrum[i], "link": parent_link.concat(breadcrum[i].replace(/ /g,"-"))})
           }
           else{
@@ -50,7 +50,7 @@ class ProductPage extends React.Component {
     return(
       <div className="container">
       {
-        this.state.productCheck == true ?
+        this.state.productCheck === true ?
         <div className="mt-5">
         <nav aria-label="breadcrumb">
             <ol className="breadcrumb">

@@ -63,7 +63,6 @@ app.post('/api/product_listing',async (req, res) => {
     }
   }
 
-  //console.log(filtered_categories)
   let result_categories = [...new Map(filtered_categories.map(obj => [JSON.stringify(obj), obj])).values()];
   let products = []
   for (let item in result_categories){
@@ -186,9 +185,8 @@ app.post('/api/create-product', async(req, res) => {
     values \
     ('${data.category_id}','${productId.rows[0].product_id}')`)
     if(data.specs_keys.length > 0){
-      console.log(data.specs_keys.length)
       for(let item in data.specs_keys){
-          if(data.specs_keys[item].key.trim() !== "" && data.specs_keys[item].value.trim() !== ""){        
+          if(data.specs_keys[item].key.trim() !== "" && data.specs_keys[item].value.trim() !== ""){
               await client.query(`insert into specifications (product_id,key,value,unit) \
               values \
               (${productId.rows[0].product_id},'${data.specs_keys[item]['key']}','${data.specs_keys[item]['value']}','${data.specs_keys[item]['unit']}')`)

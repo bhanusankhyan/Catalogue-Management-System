@@ -75,10 +75,11 @@ class CreateProduct extends React.Component {
     )
     .then(res => res.json())
     .then(data => {
-      if(data.result == 'success'){
+      if(data.result === 'success'){
         alert("Product Created Successfully")
+        this.props.refreshList("products");
         this.setState({modalShow : false})
-        window.location.href = "/"
+        this.setState({productName: "",specsKeys:[{key:"",value:"",unit:""}]})
       }
       else{
         alert(data.result+" Please Try Again")

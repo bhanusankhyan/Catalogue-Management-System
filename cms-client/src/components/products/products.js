@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import {Link} from 'react-router-dom';
 import './products.css';
 import Filter from './filter';
 import CreateProduct from './createProduct';
@@ -9,8 +8,8 @@ import ProductCard from './productCard';
 
 
 class Products extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       products : [],
       displayProducts: [],
@@ -22,42 +21,72 @@ class Products extends Component {
       filter:[
         {brands:[]},
         {categories:[]}
-      ]
+      ],
+      refreshList : ["brands"]
 
     }
     this.onBrandsChange = this.onBrandsChange.bind(this)
     this.handleFilters = this.handleFilters.bind(this)
+    this.setRefreshList = this.setRefreshList.bind(this)
   }
   componentDidMount(){
-    fetch('/api/products')
-      .then(res => res.json())
-      .then(products => {
-        this.setState({products})
-        this.setState({displayProducts : products})
-      })
-    fetch('api/select-category')
-      .then(res => res.json())
-      .then(data => {
-        console.log(data.status)
-        let categories = []
-        for (let item in data){
-          categories.push({label:data[item].category_name, value:data[item].category_name})
-        }
-        let filtered_categories = [...new Map(categories.map(obj => [JSON.stringify(obj), obj])).values()];
-        this.setState({categoryFilter: categories})
-      })
-      fetch('/api/brands')
-      .then(res => res.json())
-      .then(data => {
-        let brands = []
-        for(let item in data){
-            brands.push({label:data[item].brand_name, value:data[item].brand_name})
-        }
-        this.setState({brandFilter: brands})
-      })
+      this.fetchProducts();
+      this.fetchCategories();
+      this.fetchBrands();
       var elements = document.getElementsByClassName('css-1hb7zxy-IndicatorsContainer')
       while (elements.length > 0) elements[0].remove();
   }
+
+
+  shouldComponentUpdate(nextProps, nextState) {
+      if(nextState.refreshList.length ===1 && nextState.refreshList[0].includes("categories") === true && nextState.refreshList[0]!== this.state.refreshList[0]){
+          this.fetchCategories();
+          return true
+      }
+      if(nextState.refreshList.length ===1 && nextState.refreshList[0].includes("brands") === true && nextState.refreshList[0] !== this.state.refreshList[0]){
+          this.fetchBrands();
+          return true
+      }
+      if(nextState.refreshList.length ===1 && nextState.refreshList[0].includes("products") === true && nextState.refreshList[0] !== this.state.refreshList[0]){
+          this.fetchProducts();
+          return true
+      }
+      return true
+  }
+
+fetchCategories() {
+  fetch('api/select-category')
+    .then(res => res.json())
+    .then(data => {
+      let categories = []
+      for (let item in data){
+        categories.push({label:data[item].category_name, value:data[item].category_name})
+      }
+      this.setState({categoryFilter: categories})
+    })
+}
+
+fetchProducts() {
+  fetch('/api/products')
+    .then(res => res.json())
+    .then(products => {
+      this.setState({products})
+      this.setState({displayProducts : products})
+    })
+}
+
+fetchBrands() {
+  fetch('/api/brands')
+  .then(res => res.json())
+  .then(data => {
+    let brands = []
+    for(let item in data){
+        brands.push({label:data[item].brand_name, value:data[item].brand_name})
+    }
+    this.setState({brandFilter: brands})
+  })
+}
+
   onBrandsChange = selectedBrand => {
     var filter = this.state.filter
     filter[0].brands = selectedBrand
@@ -120,6 +149,10 @@ class Products extends Component {
     this.setState({selectedBrand: null})
     this.setState({selectedCategory: null})
   }
+  setRefreshList(data){
+    let randomint = Math.floor(Math.random() * 1000000)
+    this.setState({refreshList:[data+randomint]})
+  }
 
 
   render(){
@@ -129,9 +162,9 @@ class Products extends Component {
               <h2 className="text-center">Products</h2>
           </div>
           <div className="mb-3 form-group ">
-            <CreateProduct />
-            <CreateBrand />
-            <CreateCategory />
+            <CreateProduct refreshList={this.setRefreshList}/>
+            <CreateBrand   refreshList = {this.setRefreshList}/>
+            <CreateCategory refreshList={this.setRefreshList} />
           </div>
           <div className="row m-1">
               <div className="col-lg-3">

@@ -5,7 +5,7 @@ import Products from './components/products/products';
 import * as serviceWorker from './serviceWorker';
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
-import {Route, Link, Redirect, BrowserRouter as Router, Switch} from 'react-router-dom';
+import {Route, Redirect, BrowserRouter as Router, Switch} from 'react-router-dom';
 import PageNotFound from './404';
 import ProductPage from './components/products/productPage';
 import ProductsHier from './components/products/productsHier';

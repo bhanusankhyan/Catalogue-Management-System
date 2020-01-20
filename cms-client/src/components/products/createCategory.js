@@ -40,10 +40,10 @@ createCategory(e) {
   })
   .then(res => res.json())
   .then(data => {
-    console.log(data)
-    if (data[0].result == 1){
+    if (data[0].result === 1){
       alert("Category created Successfully!!")
       this.setState({modalShow:false})
+      this.props.refreshList("categories");
     }
     else{
       alert(data[0].result+" Please Try Again")
@@ -87,7 +87,7 @@ handleCategoryName(e) {
                     <option value="">None</option>
                 {
                   this.state.parentCategoryData.map(data =>
-                    <option value={data.category_name}>{data.category_name}</option>
+                    <option value={data.category_name} key={data.category_id}>{data.category_name}</option>
                   )
                 }
               </select>
