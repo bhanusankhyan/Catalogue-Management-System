@@ -64,7 +64,7 @@ class CreateProduct extends React.Component {
     e.preventDefault();
     if(this.state.productName.trim() !== ''){
 
-    const product = [{product_name:this.state.productName,brand_id:this.state.brandID,
+    const product = [{product_name:this.state.productName.replace(/\s+/g,' ').trim(),brand_id:this.state.brandID,
       category_id:this.state.categoryID,specs_keys:this.state.specsKeys,description:this.state.description}]
     fetch('/api/create-product',{
       method : 'post',

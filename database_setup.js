@@ -21,7 +21,7 @@ const pool = new Pool({
 //t2.category_id from queryv1 AS t1, categoryProduct AS t2 WHERE t1.product_id = t2.product_id;
 
 //VIEW3
-//CREATE VIEW queryv3 AS select t1.brand_name, t1.product_id, t1.product_name, t1.description , 
+//CREATE VIEW queryv3 AS select t1.brand_name, t1.product_id, t1.product_name, t1.description ,
 //t2.category_name, t2.parent_name from queryv2 AS t1, categories AS t2 WHERE t1.category_id = t2.category_id;
 
 // Creating Tables
@@ -33,35 +33,27 @@ const pool = new Pool({
 
 
 pool.query("CREATE TABLE brands (brand_id SERIAL PRIMARY KEY , \
-  brand_name VARCHAR(100) UNIQUE NOT NULL)", (error, res) => {
+  brand_name VARCHAR(100) UNIQUE NOT NULL, slug VARCHAR(100) UNIQUE)", (error, res) => {
   console.log(error, res);
-  productsTable()
+  categoriesTable()
 })
+
+var categoriesTable = function(){
+  pool.query("CREATE TABLE categories (category_id SERIAL PRIMARY KEY , \
+  category_name VARCHAR(100) NOT NULL UNIQUE, parent_name VARCHAR(100), \
+  slug VARCHAR(100) UNIQUE)", (error, res) => {
+  console.log(error, res);
+  productsTable();
+})
+}
 
 var productsTable = function(){
   pool.query("CREATE TABLE products (product_id SERIAL PRIMARY KEY , \
   product_name VARCHAR(100) UNIQUE NOT NULL, brand_id INT NOT NULL REFERENCES brands(brand_id) ON DELETE CASCADE, \
-  description VARCHAR(1000))", (error, res) => {
+  description VARCHAR(1000), slug VARCHAR(100) UNIQUE, category_id INT NOT NULL REFERENCES categories(category_id))", (error, res) => {
   console.log(error, res);
-  categoriesTable()
+  specificationsTable()
 })
-}
-
-var categoriesTable = function(){
-  pool.query("CREATE TABLE categories (category_id SERIAL PRIMARY KEY , \
-  category_name VARCHAR(100) NOT NULL UNIQUE, parent_name VARCHAR(100))", (error, res) => {
-  console.log(error, res);
-  productCategoryTable()
-})
-}
-
-var productCategoryTable = function(){
-  pool.query("CREATE TABLE categoryProduct (id SERIAL PRIMARY KEY, \
-  category_id INT NOT NULL REFERENCES categories(category_id) ON DELETE CASCADE, \
-  product_id INT NOT NULL REFERENCES products(product_id) ON DELETE CASCADE) ", (error, res) => {
-    console.log(error,res);
-    specificationsTable()
-  })
 }
 
 

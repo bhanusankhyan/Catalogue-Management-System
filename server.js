@@ -36,37 +36,50 @@ app.post('/api/product_listing',async (req, res) => {
   const categories = req.body[1].categories
   const brands = req.body[0].brands
   if (brands !== null){
+    let brands_query = "select * from queryv2 where "
     for(let item in brands){
-      const data = await filterBrands(brands[item]['label'])
-      if(data.length !== 0){
-        for (let value in data){
-          filtered_brands.push(data[value])
+      if (parseInt(item)+1 === brands.length){
+        brands_query = brands_query + `brand_name like '${brands[item].label}'`
+      }
+      else{
+        brands_query = brands_query + `brand_name like '${brands[item].label}' OR `
+      }
+    }
+      const data = await client.query(brands_query)
+      if(data.rows.length !== 0){
+        for (let value in data.rows){
+          filtered_brands.push(data.rows[value])
         }
       }
-
-    }
   }
   if (categories !== null){
+    //categories_query = "select category_id, category_name from categories where "
+    let categories_query = "select category_id, category_name from categories where "
     for (let item in categories){
-      let parent = await client.query(`select category_id, category_name from categories where category_name like '${categories[item]['label']}'`)
+      if(parseInt(item)+1 === categories.length){
+        categories_query = categories_query + `category_name like '${categories[item].label}'`
+      }
+      else {
+        categories_query = categories_query + `category_name like '${categories[item].label}' OR `
+      }
+    }
+    let parent = await client.query(categories_query)
       for (let value in parent.rows){
         filtered_categories.push(parent.rows[value])
-        parent = []
-      }
-      let data = await filterCategories(categories[item]['label'])
-      if(data.length !== 0){
-        for (let value in data){
-          filtered_categories.push(data[value])
+        let data = await readHierarchy([{category_name:parent.rows[value].category_name}])
+        if(data.length !== 0){
+          for (let value in data){
+            filtered_categories.push(data[value])
+          }
         }
+        hierTree = []
       }
-      categories_filtered = []
-    }
   }
 
   let result_categories = [...new Map(filtered_categories.map(obj => [JSON.stringify(obj), obj])).values()];
   let products = []
   for (let item in result_categories){
-    let data = await client.query(`select * from queryv3 where category_name like '${result_categories[item]['category_name']}'`)
+    let data = await client.query(`select * from queryv2 where category_name like '${result_categories[item]['category_name']}'`)
     for(let value in data.rows){
       products.push(data.rows[value])
     }
@@ -137,31 +150,42 @@ app.get('/api/hier/*', async(req,res) => {
   const child = param.split("/").slice(-1)
   const parent_data = await client.query("select category_id, category_name from categories where category_name like $1",[child[0].replace(/-/g, " ")])
   data.push(parent_data.rows[0])
-  let children = await readHierarchy(child[0].replace(/-/g," "))
+  let children = await readHierarchy([{category_name:child[0].replace(/-/g," ")}])
   for (let item in children){
     data.push(children[item])
   }
   const parents  = param.split("/")
   let products = {result:true,data:[]}
+  let parent_checking_query = "select category_id, category_name from categories where "
   for (let item in parents){
-    const parent = await client.query(`select category_id, category_name from categories where category_name like '${parents[item].replace(/-/g," ")}'`)
-    if(parent.rows.length === 0){
-      products['result'] = false
+    if (parseInt(item)+1 === parents.length){
+      parent_checking_query = parent_checking_query + `category_name like '${parents[item].replace(/-/g," ")}'`
     }
+    else{
+      parent_checking_query = parent_checking_query + `category_name like '${parents[item].replace(/-/g," ")}' OR `
+    }
+
+  }
+  const parent_check = await client.query(parent_checking_query)
+  if(parents.length !== parent_check.rows.length){
+    products['result'] = false
   }
   if(products.result === true){
+  let data_query = "select * from queryv2 where "
   for(let item in data){
-    try{
-    let product = await client.query(`select * from queryv3 where category_name like '${data[item]['category_name']}'`)
+    if(parseInt(item)+1 === data.length){
+      data_query = data_query + `category_name like '${data[item].category_name}'`
+    }
+    else {
+      data_query = data_query + `category_name like '${data[item].category_name}' OR `
+    }
+  }
+    let product = await client.query(data_query)
     for(let value in product.rows){
       products.data.push(product.rows[value])
     }
-    }
-    catch(e){
-      console.log(e)
-    }
   }
-  }
+
   hierTree = []
   res.send(JSON.stringify(products))
 })
@@ -175,15 +199,12 @@ app.get('/api/brands', async(req,res) => {
 // API for a Product Creation
 app.post('/api/create-product', async(req, res) => {
   const data = req.body[0]
-  const create_product = await createProduct(data.product_name, data.brand_id, data.description)
+  const create_product = await createProduct(data.product_name, data.brand_id, data.description, data.category_id)
   if(create_product != 1){
     res.send(JSON.stringify({result:create_product}))
   }
   else{
     const productId = await client.query(`select product_id from products where product_name like '${data.product_name}'`)
-    const mappingCategory = await client.query(`insert into categoryProduct (category_id,product_id) \
-    values \
-    ('${data.category_id}','${productId.rows[0].product_id}')`)
     if(data.specs_keys.length > 0){
       for(let item in data.specs_keys){
           if(data.specs_keys[item].key.trim() !== "" && data.specs_keys[item].value.trim() !== ""){
@@ -197,12 +218,49 @@ app.post('/api/create-product', async(req, res) => {
 }
 })
 
+app.get('/api/edit-category/:value', async(req,res) => {
+  const data = req.params.value
+  let category_data = await readHierarchy([{category_name:data}])
+  const parent_category = await client.query("select category_id, category_name from categories where category_name like $1",[data])
+  category_data.push(parent_category.rows[0])
+  const all_categories = await client.query("select category_id, category_name from categories")
+  let result = all_categories.rows.filter(e => {
+    return !category_data.find(data => data.category_id === e.category_id)});
+  hierTree = []
+  res.send(JSON.stringify(result))
+})
 
+app.post('/api/edit-category', async(req,res) => {
+  let response = {result:'failure'}
+  const data = req.body
+  if (data.category_new_name.trim() === ""){
+    response.result = 'failure'
+  }
+  else{
+    try {
+      let resp = await client.query(`update categories set category_name = '${data.category_new_name.replace(/\s+/g,' ').trim()}', parent_name = '${data.parent_new_name}',\
+       slug = slugify('${data.category_new_name.replace(/\s+/g,' ').trim()}') where category_name like '${data.category_name}'`)
+       if(resp.rowCount === 1){
+         if(data.category_new_name.replace(/\s+/g,' ').trim() !== data.category_name.replace(/\s+/g,' ').trim()){
+           let parent_name_change = await client.query(`update categories set parent_name = '${data.category_new_name.replace(/\s+/g,' ').trim()}'\
+           where parent_name like '${data.category_name.replace(/\s+/g,' ').trim()}'`)
+         }
+         response.result = "success"
+       }
+
+    }
+    catch(e){
+      response.result = 'failure'
+      console.log(e)
+    }
+  }
+  res.send(JSON.stringify(response))
+})
 
 // Function to Read Products from Database
 async function readProducts() {
     try {
-    const results = await client.query("select * from queryv3");
+    const results = await client.query("select * from queryv2");
     return results.rows;
     }
     catch(e){
@@ -211,39 +269,11 @@ async function readProducts() {
     }
 }
 
-// Function to get Children of a Category
-var categories_filtered = []
-async function filterCategories(data){
-  try{
-      let children = await client.query(`select category_id, category_name from categories where parent_name like '${data}'`)
-      for (item in children.rows){
-        categories_filtered.push(children.rows[item])
-        await filterCategories(children.rows[item].category_name)
-      }
-      return categories_filtered
-    }
-  catch(e){
-    console.log(e)
-    return []
-  }
-}
-
-// Function to Collect Data of Products Related to Brands
-async function filterBrands(data){
-  try{
-    let products = await client.query(`select * from queryv3 where brand_name like '${data}'`)
-    return products.rows
-  }
-  catch(e){
-    console.log(e)
-    return []
-  }
-}
 
 // Function to Create Brand
 async function createBrand(brand_name) {
   try{
-    const result = await client.query(`insert into brands (brand_name) values ('${brand_name}')`)
+    const result = await client.query(`insert into brands (brand_name) values ('${brand_name.replace(/\s+/g,' ').trim()}')`)
     return result.rowCount
   }
   catch(e){
@@ -254,7 +284,7 @@ async function createBrand(brand_name) {
 // Function to Create Category
 async function createCategory(data) {
   try{
-    const result = await client.query(`insert into categories (category_name, parent_name) values ('${data.category_name}','${data.parent_name}')`)
+    const result = await client.query(`insert into categories (category_name, parent_name) values ('${data.category_name.replace(/\s+/g,' ').trim()}','${data.parent_name}')`)
     return result.rowCount
   }
   catch(e){
@@ -265,7 +295,7 @@ async function createCategory(data) {
 // Function to Read Full Product Data
 async function readProductData(id){
   try{
-    const result = await client.query(`select * from queryv3 where product_id = ${id}`)
+    const result = await client.query(`select * from queryv2 where product_id = ${id}`)
     const spec = await client.query(`select key, value, unit from specifications where product_id = ${id}`)
     let data = []
     if(result.rows.length == 0)
@@ -301,14 +331,30 @@ async function readBreadcrum(parent_name){
 
 // Function to Fetch Hierarchy Category Data
 let hierTree = []
+let query = "select category_id, category_name from categories where "
 async function readHierarchy(parent){
   try{
-    const children = await client.query(`select category_id, category_name from categories where parent_name like '${parent}'`)
-    if (children.rows.length !== 0){
-    for (let item in children.rows){
-      hierTree.push(children.rows[item])
-      await readHierarchy(children.rows[item].category_name)
+    let children
+    if(parent.length === 1){
+    children = await client.query(`select category_id, category_name from categories where parent_name like '${parent[0].category_name}'`)
     }
+    else if(parent.length > 1){
+      let inside_query = query
+      for(let item in parent){
+        if(parseInt(item)+1 === parent.length){
+          inside_query = inside_query + `parent_name like '${parent[item].category_name}'`
+        }
+        else{
+          inside_query = inside_query + `parent_name like '${parent[item].category_name}' OR `
+        }
+      }
+      children = await client.query(`${inside_query}`)
+    }
+    if (children.rows.length !== 0){
+      for (let item in children.rows){
+      hierTree.push(children.rows[item])
+    }
+      await readHierarchy(children.rows)
     }
 
   }
@@ -322,11 +368,11 @@ async function readHierarchy(parent){
 }
 
 // Function to Create Product
-async function createProduct(product_name, brand_id, description) {
+async function createProduct(product_name, brand_id, description, category_id) {
   try{
-    const result = await client.query(`insert into products (product_name,brand_id,description) \
+    const result = await client.query(`insert into products (product_name,brand_id,description,category_id) \
     values \
-    ('${product_name}','${brand_id}','${description}')`)
+    ('${product_name.replace(/\s+/g,' ').trim()}','${brand_id}','${description}','${category_id}')`)
     return result.rowCount
   }
   catch(e){

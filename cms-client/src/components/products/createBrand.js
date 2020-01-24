@@ -19,7 +19,7 @@ class CreateBrand extends React.Component {
   createBrand(e) {
     e.preventDefault();
     if(this.state.brandName.trim() !== ""){
-    const brandData = [{brand_name: this.state.brandName}]
+    const brandData = [{brand_name: this.state.brandName.replace(/\s+/g,' ').trim()}]
     fetch('/api/createbrand',{
       method : 'post',
       headers : {

@@ -16,22 +16,22 @@ pool.query("INSERT INTO brands (brand_name) \
   ('Ford'), \
   ('Toyota')",(error, res)=>{
   console.log(error, res);
-  productsData()
+  categoryData()
 });
 
 var productsData = function(){
-  pool.query("INSERT INTO products (product_name, brand_id, description) \
+  pool.query("INSERT INTO products (product_name, brand_id, category_id, description) \
     VALUES \
-    ('Bosch Angle Grinder GWS 600','1','Lorem Ipsum Lorem Ipsum Lorem Ipsum \
+    ('Bosch Angle Grinder GWS 600','1','1','Lorem Ipsum Lorem Ipsum Lorem Ipsum \
      Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum \
       Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum'), \
-    ('Bosch Angle Grinder GWS 300','1',''), \
-    ('Bosch Angle Grinder GWS 200','1',''),\
-    ('Ford Fiesta','2',''), \
-    ('Ford Figo','2',''), \
-    ('Toyota Qualis','3','')",(error, res)=>{
+    ('Bosch Angle Grinder GWS 300','1','2',''), \
+    ('Bosch Angle Grinder GWS 200','1','3',''),\
+    ('Ford Fiesta','2','5',''), \
+    ('Ford Figo','2','5',''), \
+    ('Toyota Qualis','3','6','')",(error, res)=>{
     console.log(error, res);
-    categoryData();
+    specificationsData()
   });
 }
 
@@ -45,21 +45,7 @@ var categoryData = function(){
     ('Cars','Vehicles'),\
     ('Trucks','Vehicles') ",(error, res)=>{
     console.log(error, res);
-    productCategoryData()
-  });
-}
-
-var productCategoryData = function(){
-  pool.query("INSERT INTO categoryProduct (category_id, product_id) \
-    VALUES \
-    ('1','1'), \
-    ('2','2'), \
-    ('3','3'), \
-    ('4','4'), \
-    ('5','5'), \
-    ('6','6')",(error, res)=>{
-    console.log(error, res);
-    specificationsData()
+    productsData()
   });
 }
 

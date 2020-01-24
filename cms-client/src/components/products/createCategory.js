@@ -30,7 +30,7 @@ handleParentCategory(e) {
 createCategory(e) {
   e.preventDefault()
   if(this.state.categoryName.trim() !== ''){
-  const categoryData = [{category_name : this.state.categoryName, parent_name : this.state.parentCategory}]
+  const categoryData = [{category_name : this.state.categoryName.replace(/\s+/g,' ').trim(), parent_name : this.state.parentCategory}]
   fetch('/api/create-category', {
     method : 'post',
     headers : {

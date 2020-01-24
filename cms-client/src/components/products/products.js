@@ -5,6 +5,7 @@ import CreateProduct from './createProduct';
 import CreateBrand from './createBrand';
 import CreateCategory from './createCategory';
 import ProductCard from './productCard';
+import EditCategory from './editCategory'
 
 
 class Products extends Component {
@@ -165,6 +166,7 @@ fetchBrands() {
             <CreateProduct refreshList={this.setRefreshList}/>
             <CreateBrand   refreshList = {this.setRefreshList}/>
             <CreateCategory refreshList={this.setRefreshList} />
+            <EditCategory />
           </div>
           <div className="row m-1">
               <div className="col-lg-3">

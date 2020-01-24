@@ -1,0 +1,67 @@
+CREATE OR REPLACE FUNCTION slugify("value" TEXT)
+RETURNS TEXT AS $$
+
+// lowercase the string
+WITH "lowercase" AS (SELECT lower ("value") AS "value"),
+
+// remove quotes from string
+"removed_quotes" as (select regexp_replace("value", '[''"]+','','gi')as "value" from "lowercase"),
+
+//replaces anything that's not a letter, number, hyphen('-'), or underscore('_') with a hyphen('-')
+"hyphenated" AS ( select regexp_replace("value", '[^a-z0-9\\-_]+', '-', 'gi') AS "value" from "removed_quotes")
+select "value" from "hyphenated";
+$$ LANGUAGE SQL STRICT IMMUTABLE;
+
+
+
+
+// function for inserting slug in brands table
+create function public.set_slug_from_brand_name() returns trigger
+language plpgsql
+as $$
+begin
+new.slug = slugify(new.brand_name);
+return new;
+end
+$$;
+
+// triggered when inserting value in brands table
+create trigger "t_brands_insert" before insert on "brands" for each row when (new.brand_name is not null and new.slug is null)
+execute procedure set_slug_from_brand_name();
+
+
+
+
+// function for inserting slug in products table
+create function public.set_slug_from_product_name() returns trigger
+language plpgsql
+as $$
+begin
+new.slug := slugify(new.product_name);
+return new;
+end
+$$;
+
+
+// triggered when inserting value in products table
+create trigger "t_products-insert" before insert on "products" for each row when (new.product_name is not null and new.slug is null)
+execute procedure set_slug_from_product_name();
+
+
+
+
+
+// function for inserting slug in categories table
+create function public.set_slug_from_category_name() returns trigger
+language plpgsql
+as $$
+begin
+new.slug = slugify(new.category_name);
+return new;
+end
+$$;
+
+
+// triggered when inserting value in categories table
+create trigger "t_categories_insert" before insert on "categories" for each row when (new.category_name is not null and new.slug is null)
+execute procedure set_slug_from_category_name();
