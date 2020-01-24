@@ -16,17 +16,15 @@
 ###### #Before running the server we need to setup the database
   Create Database with name "catalogue" and create User with Username : "cms" Password : "cms"<br>
   Run "node database_setup.js" in order to setup Database<br>
+  Add functions and triggers in functions_and_triggers.txt
   Run "node database_populate.js" to populate database with some dummy entries
   
 ##### Creating Database Views
   
-  1. CREATE VIEW queryv1 AS select t1.brand_name, t2.product_id, t2.product_name,<br>
-  t2.description from brands AS t1, products AS t2 WHERE t1.brand_id = t2.brand_id;
+  1. create view queryv1 as select t1.brand_name, t2.product_id, t2.description, t2.product_name, <br>
+  t2.category_id from brands as t1, products as t2 where t1.brand_id = t2.brand_id;
   
-  2. CREATE VIEW queryv2 AS select t1.brand_name, t1.product_id, t1.product_name, t1.description ,<br>
-  t2.category_id from queryv1 AS t1, categoryProduct AS t2 WHERE t1.product_id = t2.product_id;
-
-  3. CREATE VIEW queryv3 AS select t1.brand_name, t1.product_id, t1.product_name, t1.description ,<br> 
-  t2.category_name, t2.parent_name from queryv2 AS t1, categories AS t2 WHERE t1.category_id = t2.category_id;
+  2. create view queryv2 as select t1.brand_name, t1.product_id, t1.description, t1.product_name, <br>
+  t2.category_name, t2.parent_name from queryv1 as t1, categories as t2 where t1.category_id = t2.category_id;
   
 ### Run the developement server using "npm run dev"
