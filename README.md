@@ -16,7 +16,7 @@
 ###### #Before running the server we need to setup the database
   Create Database with name "catalogue" and create User with Username : "cms" Password : "cms"<br>
   Run "node database_setup.js" in order to setup Database<br>
-  Add functions and triggers in functions_and_triggers.txt in the database<br>
+  Add functions and triggers present in functions_and_triggers.txt to the database<br>
   Run "node database_populate.js" to populate database with some dummy entries
   
 ##### Creating Database Views
