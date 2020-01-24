@@ -4,8 +4,11 @@ RETURNS TEXT AS $$
 // lowercase the string
 WITH "lowercase" AS (SELECT lower ("value") AS "value"),
 
+//removing trailing spaces from string
+"removed_spaces" as (select regexp_replace("value", '^[ \t]+|[ \t]+$','','gi') as "value" from "lowercase"),
+
 // remove quotes from string
-"removed_quotes" as (select regexp_replace("value", '[''"]+','','gi')as "value" from "lowercase"),
+"removed_quotes" as (select regexp_replace("value", '[''"]+','','gi')as "value" from "removed_spaces"),
 
 //replaces anything that's not a letter, number, hyphen('-'), or underscore('_') with a hyphen('-')
 "hyphenated" AS ( select regexp_replace("value", '[^a-z0-9\\-_]+', '-', 'gi') AS "value" from "removed_quotes")

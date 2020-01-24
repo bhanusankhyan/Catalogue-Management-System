@@ -157,17 +157,10 @@ app.get('/api/hier/*', async(req,res) => {
   const parents  = param.split("/")
   let products = {result:true,data:[]}
   let parent_checking_query = "select category_id, category_name from categories where "
-  for (let item in parents){
-    if (parseInt(item)+1 === parents.length){
-      parent_checking_query = parent_checking_query + `category_name like '${parents[item].replace(/-/g," ")}'`
-    }
-    else{
-      parent_checking_query = parent_checking_query + `category_name like '${parents[item].replace(/-/g," ")}' OR `
-    }
-
-  }
-  const parent_check = await client.query(parent_checking_query)
-  if(parents.length !== parent_check.rows.length){
+  //console.log(param)
+  const parent_check = await readBreadcrum(child[0].replace(/-/g," "))
+  breadCrum = ""
+  if(parent_check !== '/'+param.replace(/-/g," ")){
     products['result'] = false
   }
   if(products.result === true){
@@ -260,7 +253,7 @@ app.post('/api/edit-category', async(req,res) => {
 // Function to Read Products from Database
 async function readProducts() {
     try {
-    const results = await client.query("select * from queryv2");
+    const results = await client.query("select product_id,product_name,brand_name,category_name,parent_name,slug from queryv2");
     return results.rows;
     }
     catch(e){
@@ -295,12 +288,13 @@ async function createCategory(data) {
 // Function to Read Full Product Data
 async function readProductData(id){
   try{
-    const result = await client.query(`select * from queryv2 where product_id = ${id}`)
-    const spec = await client.query(`select key, value, unit from specifications where product_id = ${id}`)
+    const result = await client.query(`select * from queryv2 where slug like '${id}'`)
+    let spec
     let data = []
     if(result.rows.length == 0)
     data = [{product_data:result.rows,specifications:spec.rows,product:false}]
     else{
+    spec = await client.query(`select key, value, unit from specifications where product_id = ${result.rows[0].product_id}`)
     data = [{product_data:result.rows,specifications:spec.rows,product:true}]
     }
     return data

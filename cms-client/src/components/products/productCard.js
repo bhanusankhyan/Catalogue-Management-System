@@ -8,7 +8,7 @@ class ProductCard extends React.Component{
           {
               this.props.products.map(product =>
                   <div className = "col-lg-4 mb-3 text-center" key={product.product_id}>
-                    <Link className="link" to={`/product/${product.product_id}`} >
+                    <Link className="link" to={`/product/${product.slug}`} >
                       <div className="card">
                         <div className="card-header">
                             <h5>{product.product_name}</h5>
