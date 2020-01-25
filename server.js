@@ -126,17 +126,12 @@ app.post('/api/create-category', async(req, res) => {
 app.get('/api/product/:id', async(req,res) => {
   const data = await readProductData(req.params.id)
   if (data[0]['product'] == true){
-  var bread = ""
-  if (data[0]['product_data'][0]['parent_name'] != '' ){
-    bread = await readBreadcrum(data[0]['product_data'][0]['parent_name'])
-    bread = bread +"/"+ data[0]['product_data'][0]['category_name']
+    let parent = await client.query(`select category_name, slug from categories where category_name like '${data[0]['product_data'][0]['parent_name']}'`)
+    let bread = await readBreadcrum(data[0]['product_data'][0]['category_name'])
+    data[0]['breadcrum'] = bread
   }
-  else{
-    bread = "/"+data[0]['product_data'][0]['category_name']
-  }
-  }
-  data[0]['breadcrum'] = bread
-  breadCrum = ""
+  array = []
+  bread_array = []
   res.send(JSON.stringify(data))
 })
 
@@ -144,40 +139,46 @@ app.get('/api/product/:id', async(req,res) => {
 app.get('/api/hier/*', async(req,res) => {
   let param = req.params[0]
   let data = []
+  let products = {result:true,data:[],breadcrum:[]}
   if(param.charAt(param.length-1) == '/'){
     param = param.slice(0,-1)
   }
   const child = param.split("/").slice(-1)
-  const parent_data = await client.query("select category_id, category_name from categories where category_name like $1",[child[0].replace(/-/g, " ")])
+  const parent_data = await client.query("select category_id, category_name from categories where slug like $1",[child[0]])
   data.push(parent_data.rows[0])
-  let children = await readHierarchy([{category_name:child[0].replace(/-/g," ")}])
-  for (let item in children){
-    data.push(children[item])
+  if(parent_data.rows.length === 0){
+    products.result = false
   }
-  const parents  = param.split("/")
-  let products = {result:true,data:[]}
-  let parent_checking_query = "select category_id, category_name from categories where "
-  //console.log(param)
-  const parent_check = await readBreadcrum(child[0].replace(/-/g," "))
-  breadCrum = ""
-  if(parent_check !== '/'+param.replace(/-/g," ")){
-    products['result'] = false
+  else{
+    const parent_check = await readBreadcrum(parent_data.rows[0].category_name)
+    array = []
+    bread_array = []
+    if(parent_check[parent_check.length-1].link !== '/'+param){
+      products.result = false
+    }
+    else{
+      products.breadcrum = parent_check
+    }
   }
   if(products.result === true){
-  let data_query = "select * from queryv2 where "
-  for(let item in data){
-    if(parseInt(item)+1 === data.length){
-      data_query = data_query + `category_name like '${data[item].category_name}'`
+      let children = await readHierarchy([{category_name:data[0].category_name}])
+      for (let item in children){
+        data.push(children[item])
+      }
+      let data_query = "select * from queryv2 where "
+      for(let item in data){
+        if(parseInt(item)+1 === data.length){
+          data_query = data_query + `category_name like '${data[item].category_name}'`
+        }
+        else {
+          data_query = data_query + `category_name like '${data[item].category_name}' OR `
+        }
+      }
+      let product = await client.query(data_query)
+      for(let value in product.rows){
+        products.data.push(product.rows[value])
+      }
     }
-    else {
-      data_query = data_query + `category_name like '${data[item].category_name}' OR `
-    }
-  }
-    let product = await client.query(data_query)
-    for(let value in product.rows){
-      products.data.push(product.rows[value])
-    }
-  }
 
   hierTree = []
   res.send(JSON.stringify(products))
@@ -291,8 +292,9 @@ async function readProductData(id){
     const result = await client.query(`select * from queryv2 where slug like '${id}'`)
     let spec
     let data = []
-    if(result.rows.length == 0)
-    data = [{product_data:result.rows,specifications:spec.rows,product:false}]
+    if(result.rows.length == 0){
+    data = [{product_data:[],specifications:[],product:false}]
+  }
     else{
     spec = await client.query(`select key, value, unit from specifications where product_id = ${result.rows[0].product_id}`)
     data = [{product_data:result.rows,specifications:spec.rows,product:true}]
@@ -305,21 +307,37 @@ async function readProductData(id){
 }
 
 // Function to get Hierarchy of Child to Parent
-var breadCrum=  ""
-async function readBreadcrum(parent_name){
-  breadCrum = breadCrum.concat(parent_name,"/")
+let array = []
+let bread_array = []
+async function readBreadcrum(cat_name){
   var result = ""
   try{
-  const bread = await client.query(`select parent_name from categories where category_name like \'${parent_name}\'`)
+  const bread = await client.query(`select parent_name,category_name,slug from categories where category_name like \'${cat_name}\'`)
+  bread_array.push(bread.rows[0].slug)
+  array.push({category_name:bread.rows[0].category_name, link:''})
   if(bread.rows[0]['parent_name'] != ''){
     await readBreadcrum(bread.rows[0]['parent_name'])
   }
-  return breadCrum.split('/').reverse().join('/')
 
   }
   catch(e){
     console.log(e)
     return []
+  }
+  finally{
+    let breads = []
+    let item = ""
+    for (let i=0;i<bread_array.length;i++){
+      for(let j=bread_array.length-1;j>=i;j--){
+        item = item.concat("/"+bread_array[j])
+      }
+      breads.push(item)
+      item = ""
+    }
+    for (let value in array){
+      array[value]['link'] = breads[value]
+    }
+    return Object.assign([],array).reverse()
   }
 }
 

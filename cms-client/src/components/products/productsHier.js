@@ -32,25 +32,7 @@ class ProductsHier extends React.Component {
       this.setState({hierCheck:true})
       this.setState({displayProducts:data.data})
       this.setState({products: data.data})
-      let link_data = this.props.match.params[0]
-      if(link_data.charAt(link_data.length-1) === '/'){
-        link_data = link_data.slice(0,-1)
-      }
-      let breadcrum = link_data.split("/")
-      let breadcrum_link = link_data
-      let parent_link = "/products/"
-      let links = []
-      for(let i=0;i< breadcrum.length;i++){
-        if(breadcrum.length === 1){
-          links.push({"name" :breadcrum[i], "link": parent_link.concat(breadcrum[i].replace(/ /g,"-"))})
-        }
-        else{
-        links.push({"name" :breadcrum[i], "link": parent_link.concat(breadcrum_link.substring(0,breadcrum_link.indexOf(breadcrum[i])).concat(breadcrum[i])).replace(/ /g, "-")})
-
-
-      }
-      }
-      this.setState({breadcrum_links:links})
+      this.setState({breadcrum_links:data.breadcrum})
       let brands = []
       let categories = []
       let products = this.state.products
@@ -150,10 +132,10 @@ dataChange() {
                     return(
                     <li className="breadcrumb-item" aria-current="page" key={data.link}>
                       { this.state.breadcrum_links.length -1 !== index ?
-                        <a  href = {data.link}>
-                        {data.name}
+                        <a  href = {"/products"+data.link}>
+                        {data.category_name}
                       </a> :
-                       <span>{data.name} </span>
+                       <span>{data.category_name} </span>
                     }
                     </li>
                   )})

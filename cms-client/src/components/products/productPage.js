@@ -19,25 +19,11 @@ class ProductPage extends React.Component {
     fetch(`/api/product/${this.props.match.params.id}`)
     .then(res => res.json())
     .then(data => {
-      this.setState({productData: data[0]['product_data']})
-      this.setState({specifications: data[0]['specifications']})
       if(data[0]['product'] === true){
+        this.setState({productData: data[0]['product_data']})
+        this.setState({specifications: data[0]['specifications']})
         this.setState({productCheck : true})
         this.setState({breadcrum : data[0]['breadcrum']})
-        let breadcrum = data[0].breadcrum.slice(1).split("/")
-        let breadcrum_link = data[0].breadcrum.slice(1)
-        let parent_link = "/products/"
-        let links = []
-        for(let i=0;i< breadcrum.length;i++){
-          if(breadcrum.length === 1){
-            links.push({"name" :breadcrum[i], "link": parent_link.concat(breadcrum[i].replace(/ /g,"-"))})
-          }
-          else{
-          links.push({"name" :breadcrum[i], "link": parent_link.concat(breadcrum_link.substring(0,breadcrum_link.indexOf(breadcrum[i])).concat(breadcrum[i])).replace(/ /g, "-")})
-        }
-        }
-        this.setState({breadcrum_links:links}, ()=>{
-        })
       }
 
     })
@@ -60,10 +46,10 @@ class ProductPage extends React.Component {
               </Link>
             </li>
             {
-              this.state.breadcrum_links.map(data=>
+              this.state.breadcrum.map(data=>
               <li className="breadcrumb-item" aria-current="page" key={data.link} >
-                  <Link to={data.link} >
-                      {data.name}
+                  <Link to={"/products"+data.link} >
+                      {data.category_name}
                   </Link>
               </li>)
             }
