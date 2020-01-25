@@ -21,10 +21,13 @@
   
 ##### Creating Database Views
   
-  1. create view queryv1 as select t1.brand_name, t2.product_id, t2.description, t2.product_name, <br>
-  t2.category_id from brands as t1, products as t2 where t1.brand_id = t2.brand_id;
+  1. create view queryv1 as select t1.brand_name, t2.description, t2.slug, t2.product_name, <br>
+  t2.category_id, t2.product_id from brands as t1, products as t2 where t1.brand_id = t2.brand_id;
+
   
-  2. create view queryv2 as select t1.brand_name, t1.product_id, t1.description, t1.product_name, <br>
-  t2.category_name, t2.parent_name from queryv1 as t1, categories as t2 where t1.category_id = t2.category_id;
+  2. create view queryv2 as select t1.brand_name, t1.product_id, t1.description, t1.slug, <br> 
+  t1.product_name, t2.category_name, t2.parent_name from queryv1 as t1, categories as t2 <br>
+  where t1.category_id = t2.category_id;
+
   
 ### Run the developement server using "npm run dev"
