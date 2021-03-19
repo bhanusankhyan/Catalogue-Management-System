@@ -10,19 +10,6 @@ const pool = new Pool({
 });
 //Setting up Database
 // Create Database "catalogue" in Postgres with User "cms", Password "cms"
-//Create Views in order to execute some queries
-
-//VIEW 1
-//CREATE VIEW queryv1 AS select t1.brand_name, t2.product_id, t2.product_name,
-//t2.description from brands AS t1, products AS t2 WHERE t1.brand_id = t2.brand_id;
-
-//VIEW2
-//CREATE VIEW queryv2 AS select t1.brand_name, t1.product_id, t1.product_name, t1.description ,
-//t2.category_id from queryv1 AS t1, categoryProduct AS t2 WHERE t1.product_id = t2.product_id;
-
-//VIEW3
-//CREATE VIEW queryv3 AS select t1.brand_name, t1.product_id, t1.product_name, t1.description ,
-//t2.category_name, t2.parent_name from queryv2 AS t1, categories AS t2 WHERE t1.category_id = t2.category_id;
 
 // Creating Tables
 // Table brands is used to store brand data
