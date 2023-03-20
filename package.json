@@ -4,11 +4,12 @@
   "description": "cms",
   "main": "server.js",
   "scripts": {
+    "debug": "export NODE_OPTIONS='--openssl-legacy-provider' && npm run dev",
     "client-install": "cd cms-client && npm install",
     "start": "node server.js",
     "server": "nodemon server.js",
     "client": "cd cms-client && npm start",
-    "dev": "concurrently \"npm run server \" \"npm run client \""
+    "dev": "export NODE_OPTIONS='--openssl-legacy-provider' && concurrently \"npm run server \" \"npm run client \""
   },
   "author": "",
   "license": "ISC",
