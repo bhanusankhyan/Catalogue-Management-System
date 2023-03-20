@@ -4,6 +4,7 @@
   "description": "cms",
   "main": "server.js",
   "scripts": {
+    "build": "",
     "debug": "export NODE_OPTIONS='--openssl-legacy-provider' && npm run dev",
     "client-install": "cd cms-client && npm install",
     "start": "node server.js",
