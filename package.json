@@ -10,7 +10,7 @@
     "start": "node server.js",
     "server": "nodemon server.js",
     "client": "cd cms-client && npm start",
-    "dev": "export NODE_OPTIONS='--openssl-legacy-provider' && concurrently \"npm run server \" \"npm run client \""
+    "dev": "concurrently \"npm run server \" \"npm run client \""
   },
   "author": "",
   "license": "ISC",
