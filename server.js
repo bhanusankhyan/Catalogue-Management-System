@@ -8,7 +8,7 @@ app.use(express.json())
 // Setting Up Postgres Database Connection
 const client = new Client({
   user: "cms",
-  host: "localhost",
+  host: "dpg-cgc9ult269v4icvedl4g-a",
   database: "catalogue",
   password: "4jWT1DKiKxBAPsDJoTI2cW9YeKUlCDPx",
   port: 5432
