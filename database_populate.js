@@ -1,15 +1,16 @@
 const {Pool, Client} = require('pg');
 
 //Setting Up Postgreas Database Connection
-const pool = new Pool({
-  user: "cms",
-  host: "localhost",
-  database: "catalogue",
-  password: "cms",
-  port: 5432
-});
+// const pool = new Pool({
+//   user: "cms",
+//   host: "localhost",
+//   database: "catalogue",
+//   password: "cms",
+//   port: 5432
+// });
 
 //Inserting Values into Tables
+function populate(pool) {
 pool.query("INSERT INTO brands (brand_name) \
   VALUES \
   ('Bosch'), \
@@ -59,3 +60,4 @@ var specificationsData = function() {
      pool.end();
    })
  }
+}

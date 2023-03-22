@@ -1,5 +1,7 @@
 const express = require('express');
-const {Client} = require('pg');
+const {Client, Pool} = require('pg');
+const func = require('./database_setup')
+const func1 = require('./database_populate')
 
 const app = express();
 const port = 8000;
@@ -13,6 +15,21 @@ const client = new Client({
   password: "4jWT1DKiKxBAPsDJoTI2cW9YeKUlCDPx",
   port: 5432
 });
+
+const pool = new Pool({
+  user: "cms",
+  host: "dpg-cgc9ult269v4icvedl4g-a",
+  database: "catalogue",
+  password: "4jWT1DKiKxBAPsDJoTI2cW9YeKUlCDPx",
+  port: 5432
+});
+
+
+func.database(pool)
+func1.populate(pool)
+func1.trigger(pool)
+
+
 
 //Connecting to Database
 client.connect(err => {
