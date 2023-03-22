@@ -27,7 +27,7 @@ const pool = new Pool({
 
 func.database(pool)
 func1.populate(pool)
-func1.trigger(pool)
+func.trigger(pool)
 
 
 
