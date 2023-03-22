@@ -57,7 +57,6 @@ var specificationsData = function() {
    (1, 'Model Number', 'GWS 600',''), \
    (1, 'Grinding Material', 'Sandstone','')", (error, res) => {
      console.log(error, res);
-     pool.end();
    })
  }
 }

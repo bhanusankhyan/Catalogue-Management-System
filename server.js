@@ -2,9 +2,15 @@ const express = require('express');
 const {Client, Pool} = require('pg');
 const func = require('./database_setup')
 const func1 = require('./database_populate')
+const path = require('path')
 
 const app = express();
 const port = 8000;
+app.use(express.static(path.join(__dirname,".","cms-client","build")))
+app.use(express.static(path.join(__dirname,".","cms-client","public")));
+app.use((req, res, next) => {
+  res.sendFile(path.join(__dirname, ".","cms-client", "build", "index.html"));
+});
 app.use(express.json())
 
 // Setting Up Postgres Database Connection

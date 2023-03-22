@@ -49,7 +49,6 @@ var specificationsTable = function(){
   product_id INT REFERENCES products(product_id) ON DELETE CASCADE, \
   key VARCHAR(50), value VARCHAR(50), unit VARCHAR(50))", (error, res) => {
   console.log(error, res);
-pool.end();
 });
 }
 }
