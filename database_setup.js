@@ -100,3 +100,5 @@ function trigger (pool) {
     pool.end()
   })
 }
+
+module.exports = { database, trigger }

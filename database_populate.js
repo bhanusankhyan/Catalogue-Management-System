@@ -61,3 +61,5 @@ var specificationsData = function() {
    })
  }
 }
+
+module.exports = { populate }
