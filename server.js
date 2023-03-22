@@ -10,7 +10,7 @@ const client = new Client({
   user: "cms",
   host: "localhost",
   database: "catalogue",
-  password: "cms",
+  password: "4jWT1DKiKxBAPsDJoTI2cW9YeKUlCDPx",
   port: 5432
 });
 
