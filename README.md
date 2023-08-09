@@ -15,7 +15,7 @@
  
 ###### #Before running the server we need to setup the database
  1. Create Database with name "catalogue" and create User with Username : "cms" Password : "cms"<br>
- 2. Run "node database_setup.js" in order to setup Database<br>
- 3. Run "node database_populate.js" to populate database with some dummy entries
+ 2. Run "node database_setup.js" to setup Database<br>
+ 3. Run "node database_populate.js" to populate database with some entries.
  
 ### Run the developement server using "npm run dev"
