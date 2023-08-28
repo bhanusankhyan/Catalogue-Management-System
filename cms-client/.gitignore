@@ -1,1 +1,3 @@
 node_modules
+.gitignore
+cms-client/build
