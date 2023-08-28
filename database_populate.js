@@ -1,13 +1,13 @@
 const {Pool, Client} = require('pg');
 
 //Setting Up Postgreas Database Connection
-// const pool = new Pool({
-//   user: "cms",
-//   host: "localhost",
-//   database: "catalogue",
-//   password: "cms",
-//   port: 5432
-// });
+const pool = new Pool({
+  user: "cms",
+  host: "localhost",
+  database: "catalogue",
+  password: "cms",
+  port: 5432
+});
 
 //Inserting Values into Tables
 function populate(pool) {
@@ -57,8 +57,13 @@ var specificationsData = function() {
    (1, 'Model Number', 'GWS 600',''), \
    (1, 'Grinding Material', 'Sandstone','')", (error, res) => {
      console.log(error, res);
+   }, (error, res) => {
+     console.log(error,res)
+     pool.end()
    })
  }
 }
+
+populate(pool)
 
 module.exports = { populate }

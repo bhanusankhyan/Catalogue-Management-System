@@ -1,13 +1,13 @@
 const {Pool, Client} = require('pg');
 
-//Setting Up Postgres Database Connection
-// const pool = new Pool({
-//   user: "cms",
-//   host: "localhost",
-//   database: "catalogue",
-//   password: "cms",
-//   port: 5432
-// });
+// Setting Up Postgres Database Connection
+const pool = new Pool({
+  user: "cms",
+  host: "localhost",
+  database: "catalogue",
+  password: "cms",
+  port: 5432
+});
 //Setting up Database
 // Create Database "catalogue" in Postgres with User "cms", Password "cms"
 
@@ -25,7 +25,7 @@ pool.query("CREATE TABLE brands (brand_id SERIAL PRIMARY KEY , \
   categoriesTable()
 })
 
-var categoriesTable = function(){
+const categoriesTable = function(){
   pool.query("CREATE TABLE categories (category_id SERIAL PRIMARY KEY , \
   category_name VARCHAR(100) NOT NULL UNIQUE, parent_name VARCHAR(100), \
   slug VARCHAR(100) UNIQUE)", (error, res) => {
@@ -34,7 +34,7 @@ var categoriesTable = function(){
 })
 }
 
-var productsTable = function(){
+const productsTable = function(){
   pool.query("CREATE TABLE products (product_id SERIAL PRIMARY KEY , \
   product_name VARCHAR(100) UNIQUE NOT NULL, brand_id INT NOT NULL REFERENCES brands(brand_id) ON DELETE CASCADE, \
   description VARCHAR(1000), slug VARCHAR(100) UNIQUE, category_id INT NOT NULL REFERENCES categories(category_id))", (error, res) => {
@@ -44,24 +44,24 @@ var productsTable = function(){
 }
 
 
-var specificationsTable = function(){
+const specificationsTable = function(){
   pool.query("CREATE TABLE specifications (spec_id SERIAL PRIMARY KEY, \
   product_id INT REFERENCES products(product_id) ON DELETE CASCADE, \
   key VARCHAR(50), value VARCHAR(50), unit VARCHAR(50))", (error, res) => {
   console.log(error, res);
+  trigger(pool)
 });
 }
 }
 
 function trigger (pool) {
-  pool.query(" \
-  CREATE OR REPLACE FUNCTION slugify('value' TEXT) \
+  pool.query("CREATE OR REPLACE FUNCTION slugify(value TEXT) \
   RETURNS TEXT AS $$ \
-  WITH 'lowercase' AS (SELECT lower ('value') AS 'value'), \
-  'removed_spaces' as (select regexp_replace('value', '^[ \t]+|[ \t]+$','','gi') as 'value' from 'lowercase'), \
-  'removed_quotes' as (select regexp_replace('value', '[''\"]+','','gi')as 'value' from 'removed_spaces'), \
-  'hyphenated' AS ( select regexp_replace('value', '[^a-z0-9\\-_]+', '-', 'gi') AS 'value' from 'removed_quotes') \
-  select 'value' from 'hyphenated'; \
+  WITH lowercase AS (SELECT lower (value) AS value), \
+  removed_spaces as (select regexp_replace(value, '^[ \t]+|[ \t]+$','','gi') as value from lowercase), \
+  removed_quotes as (select regexp_replace(value, '[''\"]+','','gi')as value from removed_spaces), \
+  hyphenated AS ( select regexp_replace(value, '[^a-z0-9\\-_]+', '-', 'gi') AS value from removed_quotes) \
+  select value from hyphenated; \
   $$ LANGUAGE SQL STRICT IMMUTABLE; \
   create function public.set_slug_from_brand_name() returns trigger \
   language plpgsql \
@@ -71,7 +71,7 @@ function trigger (pool) {
   return new; \
   end \
   $$; \
-  create trigger 't_brands_insert' before insert on 'brands' for each row when (new.brand_name is not null and new.slug is null) \
+  create trigger t_brands_insert before insert on brands for each row when (new.brand_name is not null and new.slug is null) \
   execute procedure set_slug_from_brand_name(); \
   create function public.set_slug_from_product_name() returns trigger \
   language plpgsql \
@@ -81,7 +81,7 @@ function trigger (pool) {
   return new; \
   end \
   $$; \
-  create trigger 't_products-insert' before insert on 'products' for each row when (new.product_name is not null and new.slug is null) \
+  create trigger t_products_insert before insert on products for each row when (new.product_name is not null and new.slug is null) \
   execute procedure set_slug_from_product_name(); \
   create function public.set_slug_from_category_name() returns trigger \
   language plpgsql \
@@ -91,13 +91,26 @@ function trigger (pool) {
   return new; \
   end \
   $$; \
-  create trigger 't_categories_insert' before insert on 'categories' for each row when (new.category_name is not null and new.slug is null) \
-  execute procedure set_slug_from_category_name(); \
-  "
+  create trigger t_categories_insert before insert on categories for each row when (new.category_name is not null and new.slug is null) \
+  execute procedure set_slug_from_category_name();"
   , (error, res) => {
     console.log(error, res)
+    views(pool);
+  })
+}
+
+function views(pool){
+  pool.query("\
+   create view queryv1 as select t1.brand_name, t2.description, t2.slug, t2.product_name, t2.category_id, t2.product_id from brands as t1,\
+   products as t2 where t1.brand_id = t2.brand_id; \
+   create view queryv2 as select t1.brand_name, t1.product_id, t1.description, t1.slug, t1.product_name, t2.category_name, t2.parent_name from queryv1 as t1,\
+   categories as t2 where t1.category_id = t2.category_id;",
+   (error, res) => {
+    console.log(error, res);
     pool.end()
   })
 }
+database(pool);
+// trigger(pool);
 
 module.exports = { database, trigger }
