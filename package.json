@@ -7,8 +7,8 @@
     "build": "npm install && cd cms-client && npm install",
     "debug": "export NODE_OPTIONS='--openssl-legacy-provider' && npm run dev",
     "client-install": "cd cms-client && npm install",
-    "start": "node server.js",
-    "server": "nodemon server.js",
+    "start": "concurrently \"npm run server \" \"npm run client \"",
+    "server": "node server.js",
     "client": "cd cms-client && npm start",
     "dev": "concurrently \"npm run server \" \"npm run client \""
   },

@@ -28,8 +28,9 @@ class ProductsHier extends React.Component {
     fetch(`/api/hier/${this.props.match.params[0]}`)
     .then(res => res.json())
     .then(data => {
+      console.log(data)
       if (data.result === true){
-      this.setState({hierCheck:true})
+      // this.setState({hierCheck:true})
       this.setState({displayProducts:data.data})
       this.setState({products: data.data})
       this.setState({breadcrum_links:data.breadcrum})
@@ -52,8 +53,6 @@ class ProductsHier extends React.Component {
     this.setState({hierCheck: false})
   }
   })
-
-
   }
 
   onBrandsChange = selectedBrand => {
@@ -102,10 +101,7 @@ dataChange() {
 
     }))
   })
-
 }
-
-
 
   handleFilters(){
     this.setState({displayProducts:this.state.products})
@@ -161,7 +157,7 @@ dataChange() {
                 </div>
             </div>
       </div> :
-      <PageNotFound />
+      ""
       }
       </div>
     )

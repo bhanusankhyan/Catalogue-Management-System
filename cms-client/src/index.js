@@ -14,13 +14,14 @@ const routing = (
     <Router >
         <Switch>
             <Route exact path = "/" component = {Products} />
-            <Route exact path = "/product/:id" component = {ProductPage} />
+            <Route path = "/product/:id" component = {ProductPage} />
             <Redirect exact path="/products" to='/' />
-            <Route exact path = "/products/*" component = {ProductsHier} />
-            <Route component = {PageNotFound} />
+            <Route path = "/products/*" component = {ProductsHier} />
+            <Route path="*" component = {PageNotFound} />
         </Switch>
       </Router>
 )
+
 
 
 //

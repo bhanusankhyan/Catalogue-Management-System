@@ -84,7 +84,7 @@ class ProductPage extends React.Component {
             </div>
         </div>
         </div> :
-        <PageNotFound />
+        ""
       }
       </div>
     )
