@@ -2,7 +2,7 @@
 ##### System to manage Categories, Brands and their products
 ##### Technologies Used - Frontend : React.js | Backend : Nodejs, Express | Database : Postgresql
 
-##### To run the project please follow the steps:
+##### To run the project follow the steps:
 
 ###### #Clone the repository
 
