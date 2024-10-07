@@ -4,8 +4,9 @@
   "description": "cms",
   "main": "server.js",
   "scripts": {
-    "build": "npm install && cd cms-client && npm install",
+    "build": "npm i @vercel/postgres && npm run database && npm run install && npm run client-install",
     "debug": "export NODE_OPTIONS='--openssl-legacy-provider' && npm run dev",
+    "database": "node database_setup.js && node database_populate.js",
     "client-install": "cd cms-client && npm install",
     "start": "concurrently \"npm run server \" \"npm run client \"",
     "server": "node server.js",

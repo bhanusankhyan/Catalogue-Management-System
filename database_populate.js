@@ -2,10 +2,10 @@ const {Pool, Client} = require('pg');
 
 //Setting Up Postgreas Database Connection
 const pool = new Pool({
-  user: "cms",
+  user: "postgres",
   host: "localhost",
-  database: "catalogue",
-  password: "cms",
+  database: "postgres",
+  password: "postgres",
   port: 5432
 });
 
